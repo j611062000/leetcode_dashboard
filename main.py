@@ -1,10 +1,13 @@
 from flask import Flask, render_template, Response, request
+from flask_cors import CORS
+
 from models import ProblemSet, ProblemUpdateRequest
 from repository import dump, read
 
 data_file_path = "./problem_list.pickle"
 problemSet: ProblemSet = read(data_file_path)
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='frontend/build')
+cors = CORS(app)
 
 
 @app.route('/')
@@ -16,6 +19,9 @@ def homepage():
         server_url="http://127.0.0.1:5000",
         statistic=problemSet.get_statistic(),
     )
+@app.route('/health', methods=['GET'])
+def health():
+    return Response("OK")
 
 
 @app.route('/problems/update', methods=['POST'])
@@ -28,13 +34,10 @@ def update_problems():
         )
         problemSet.problems[requestBody.problem_id].status = requestBody.status
         dump(data_file_path, problemSet)
-        print(requestBodyJson['status'], requestBody.status, problemSet.problems[requestBody.problem_id].status, requestBody.problem_id)
         return Response(str(requestBody.problem_id), mimetype='text/xml')
 
     except Exception as e:
         return Response("Invalid request body" + str(e), status=400)
-
-   
 
 
 if __name__ == "__main__":

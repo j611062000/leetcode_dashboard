@@ -1,3 +1,6 @@
+Pattern = list[str]
+DifficultyLevel = int
+
 class Difficulty():
     EASY = 1
     MEDIUM = 2
@@ -23,15 +26,36 @@ class Company:
 
 
 class Problem:
-    def __init__(self, id: int, title: str, slug: str, pattern: list[str], difficulty: int, is_premium: bool, companies: list[Company], status: int) -> None:
+    def __init__(self, id: int, title: str, slug: str, pattern: Pattern, difficulty: DifficultyLevel, is_premium: bool, companies: list[Company], status: int) -> None:
         self.id: int = id
         self.title: str = title
         self.slug: str = slug
-        self.pattern: list[str] = pattern
-        self.difficulty: int = difficulty
+        self.pattern: Pattern = pattern
+        self.difficulty: DifficultyLevel = difficulty
         self.is_premium: bool = is_premium
         self.companies: list[Company] = companies
         self.status: int = status
+
+    def is_filtered_out(self, filter: str) -> bool:
+        if filter == 'all':
+            return False
+        elif filter == 'premium':
+            return not self.is_premium
+        elif filter == 'solved':
+            return self.status != 1
+        elif filter == 'unsolved':
+            return self.status != 0
+        else:
+            raise ValueError(f'Invalid filter string: {filter}')
+
+class ProblemFilter:
+    def __init__(self, title: str, pattern: Pattern) -> None:
+        self.title: str = title
+        self.pattern: Pattern = pattern
+        self.difficulty: str = ""
+        self.is_premium: str = ""
+        self.companies: str = ""
+        self.status: str = ""
 
 
 class ProblemSet:
@@ -58,6 +82,8 @@ class ProblemSet:
                 elif problem.difficulty == 3:
                     solved[Difficulty.HARD] += 1
         return Statistics(solved, len(self.problems))
+
+    # def get_filtered_problems(self, )
 
 class Statistics:
     def __init__(self, solved: dict[int, int], total: int) -> None:
