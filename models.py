@@ -1,3 +1,6 @@
+from json import JSONEncoder
+
+
 Pattern = list[str]
 DifficultyLevel = int
 
@@ -47,6 +50,10 @@ class Problem:
             return self.status != 0
         else:
             raise ValueError(f'Invalid filter string: {filter}')
+
+class ProblemEncoder(JSONEncoder):
+        def default(self, o: Problem):
+            return o.__dict__
 
 class ProblemFilter:
     def __init__(self, title: str, pattern: Pattern) -> None:

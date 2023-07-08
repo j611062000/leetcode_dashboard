@@ -1,7 +1,8 @@
+import json
 from flask import Flask, render_template, Response, request
 from flask_cors import CORS
 
-from models import ProblemSet, ProblemUpdateRequest
+from models import ProblemEncoder, ProblemSet, ProblemUpdateRequest
 from repository import dump, read
 
 data_file_path = "./problem_list.pickle"
@@ -21,7 +22,12 @@ def homepage():
     )
 @app.route('/health', methods=['GET'])
 def health():
-    return Response("OK")
+    return Response("OK", status=200)
+
+
+@app.route('/problems', methods=['GET'])
+def get_problems():
+    return Response(json.dumps(problemSet.get_sorted_problems(), cls=ProblemEncoder), status=200, content_type='application/json')
 
 
 @app.route('/problems/update', methods=['POST'])
