@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bootstrap demo</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+
+
+<script>
+	function update_problem(id) {
+		var isChecked = document.getElementById(getCheckBoxId(id)).checked;
+		fetch('{{server_url}}/problems/update', {
+			method: 'POST',
+			body: JSON.stringify({ "problem_id": id, "status": isChecked }),
+			headers: { "Content-Type": "application/json" },
+		}).then(response => {
+			if (response.ok) {
+				popMsgModal("Problem " + id + " updated successfully!")
+			}
+		}, networkError => {
+			alert(networkError.message);
+		})
+	}
+
+	function popMsgModal(msg) {
+		document.getElementById("msgBox").style.visibility = "visible"
+		document.getElementById("msgBox").innerHTML = msg;
+		setTimeout(() => {
+			document.getElementById("msgBox").style.visibility = "hidden";
+		}, 2000);
+	}
+
+	function getCheckBoxId(id) {
+		return "check_box_" + id;
+	}
+
+
+
+</script>
+
+
+
+<body>
+	<div class="container">
+
+		<h1 class="col">Leetcode Problems</h1>
+
+		<div class="col">
+			<span class="badge bg-primary">Easy: {{statistic.solved_easy}}</span>
+			<span class="badge bg-warning">Medium: {{statistic.solved_medium}}</span>
+			<span class="badge bg-danger">Hard: {{statistic.solved_hard}}</span>
+		</div>
+		<div class="col"></div>
+		<div class="alert alert-primary col d-flex" role="alert" style="visibility:hidden" , id="msgBox">
+			hidden
+		</div>
+
+
+		<div class="col">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Status</th>
+						<th>ID</th>
+						<th>Title</th>
+						<th>Pattern</th>
+						<th>Difficulty</th>
+						<th>Is Premium</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for problem in problems %}
+					<tr>
+						<td>
+							<div class="form-check">
+								{%if problem.status == 1%}
+								<input class="form-check-input" type="checkbox" value="" id="check_box_{{problem.id}}"
+									checked onclick="update_problem('{{problem.id}}')">
+								{%else%}
+								<input class="form-check-input" type="checkbox" value="" id="check_box_{{problem.id}}"
+									onclick="update_problem('{{problem.id}}')">
+								{%endif%}
+							</div>
+						</td>
+						<td>{{problem.id}}</td>
+						<td><a href={{leetcode_url}}/{{problem.slug}}>{{problem.title}}</a></td>
+						<td>
+							<div class="container">
+								{% for p in problem.pattern %}
+								<span class="badge bg-primary">{{p}}</span>
+								{%endfor%}
+							</div>
+						</td>
+
+						{%if problem.difficulty == 1%}
+						<td class="text-success">Easy</td>
+						{%elif problem.difficulty == 2%}
+						<td class="text-warning">Medium</td>
+						{%else%}
+						<td class="text-danger">Hard</td>
+						{%endif%}
+
+						{%if problem.is_premium == True%}
+						<td><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								class="bi bi-file-earmark-lock2-fill" viewBox="0 0 16 16">
+								<path d="M7 7a1 1 0 0 1 2 0v1H7V7z"></path>
+								<path
+									d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM10 7v1.076c.54.166 1 .597 1 1.224v2.4c0 .816-.781 1.3-1.5 1.3h-3c-.719 0-1.5-.484-1.5-1.3V9.3c0-.627.46-1.058 1-1.224V7a2 2 0 1 1 4 0z">
+								</path>
+							</svg></td>
+						{%else%}
+						<td></td>
+						{%endif%}
+					</tr>
+					{% endfor %}
+
+				</tbody>
+			</table>
+		</div>
+
+
+	</div>
+
+</body>
+
+</html>
