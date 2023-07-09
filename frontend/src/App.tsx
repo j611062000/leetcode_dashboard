@@ -37,10 +37,10 @@ function BasicExampleDataGrid() {
 
 
 function App() {
-  const [problemSet, setProblemSet] = React.useState({ "problems": [] })
+  const [problemSet, setProblemSet] = React.useState()
 
   React.useEffect(() => {
-    fetch('http://127.0.0.1:5000/problems', { mode: 'cors', contentType: 'application/json' })
+    fetch('http://127.0.0.1:5000/problems', { mode: 'cors' })
       .then(response => response.json())
       .then(responseJson => {
         setProblemSet(responseJson)
@@ -51,15 +51,15 @@ function App() {
 
 
   return (
-      <div >
-        <Container>
+    <div >
+      <Container>
 
-        </Container>
-        <Container>
+      </Container>
+      <Container>
         {BasicExampleDataGrid()}
 
-        </Container>
-      </div>
+      </Container>
+    </div>
   );
 }
 

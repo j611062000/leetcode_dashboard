@@ -43,33 +43,33 @@
 </script>
 
 
-
 <body>
 	<div class="container">
 
-		<h1 class="col">Leetcode Problems</h1>
+
+		<h2 class="col py-3">Leetcode Problems</h2>
 
 		<div class="col">
-			<span class="badge bg-primary">Easy: {{statistic.solved_easy}}</span>
-			<span class="badge bg-warning">Medium: {{statistic.solved_medium}}</span>
-			<span class="badge bg-danger">Hard: {{statistic.solved_hard}}</span>
+			<span class="badge bg-success px-3">Total: {{statistic.progress_perct}} %</span>
+			<span class="badge bg-primary px-3">Easy: {{statistic.solved_easy}}</span>
+			<span class="badge bg-warning px-3">Medium: {{statistic.solved_medium}}</span>
+			<span class="badge bg-danger px-3">Hard: {{statistic.solved_hard}}</span>
 		</div>
-		<div class="col"></div>
-		<div class="alert alert-primary col d-flex" role="alert" style="visibility:hidden" , id="msgBox">
+
+		<div class="alert alert-primary col d-flex my-3" role="alert" style="visibility:hidden" , id="msgBox">
 			hidden
 		</div>
 
 
 		<div class="col">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Status</th>
-						<th>ID</th>
-						<th>Title</th>
-						<th>Pattern</th>
-						<th>Difficulty</th>
-						<th>Is Premium</th>
+			<table class="table table-hover">
+				<thead class="table-light sticky-top">
+					<th>Status</th>
+					<th>ID</th>
+					<th>Title</th>
+					<th>Pattern</th>
+					<th>Difficulty</th>
+					<th>Is Premium</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -87,7 +87,7 @@
 							</div>
 						</td>
 						<td>{{problem.id}}</td>
-						<td><a href={{leetcode_url}}/{{problem.slug}}>{{problem.title}}</a></td>
+						<td><a href={{leetcode_url}}/{{problem.slug}} target="_blank">{{problem.title}}</a></td>
 						<td>
 							<div class="container">
 								{% for p in problem.pattern %}

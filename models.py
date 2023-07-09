@@ -97,7 +97,9 @@ class Statistics:
         self.solved_easy: int = solved[Difficulty.EASY]
         self.solved_medium: int = solved[Difficulty.MEDIUM]
         self.solved_hard: int = solved[Difficulty.HARD]
+        self.total_solved: int = sum(solved.values())
         self.total: int = total
+        self.progress_perct: float = round(self.total_solved / self.total * 100, 1)
 
 class ProblemUpdateRequest:
     def __init__(self, problem_id: int, status: int) -> None:
