@@ -71,6 +71,7 @@
 					<th>Pattern</th>
 					<th>Difficulty</th>
 					<th>Is Premium</th>
+					<th>Updated When</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -115,6 +116,9 @@
 							</svg></td>
 						{%else%}
 						<td></td>
+
+						<td class="text-success">{{problem.last_updated}}</td>
+
 						{%endif%}
 					</tr>
 					{% endfor %}

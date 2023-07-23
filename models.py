@@ -1,8 +1,13 @@
 from json import JSONEncoder
-
+from datetime import date
+from typing import Optional
 
 Pattern = list[str]
 DifficultyLevel = int
+Status = int
+Solved = 1
+Unsolved = 0
+
 
 class Difficulty():
     EASY = 1
@@ -29,7 +34,18 @@ class Company:
 
 
 class Problem:
-    def __init__(self, id: int, title: str, slug: str, pattern: Pattern, difficulty: DifficultyLevel, is_premium: bool, companies: list[Company], status: int) -> None:
+    def __init__(
+        self,
+        id: int,
+        title: str,
+        slug: str,
+        pattern: Pattern,
+        difficulty: DifficultyLevel,
+        is_premium: bool,
+        companies: list[Company],
+        status: int,
+        last_updated:  Optional[date]
+    ) -> None:
         self.id: int = id
         self.title: str = title
         self.slug: str = slug
@@ -37,32 +53,49 @@ class Problem:
         self.difficulty: DifficultyLevel = difficulty
         self.is_premium: bool = is_premium
         self.companies: list[Company] = companies
-        self.status: int = status
+        self.status: Status = status
+        self.last_updated: Optional[date] = last_updated
 
-    def is_filtered_out(self, filter: str) -> bool:
-        if filter == 'all':
-            return False
-        elif filter == 'premium':
-            return not self.is_premium
-        elif filter == 'solved':
-            return self.status != 1
-        elif filter == 'unsolved':
-            return self.status != 0
+    def update_status(self, status: Status) -> None:
+        self.status = status
+        self.last_updated = date.today()
+
+    def is_choosen(self, filter: Optional['ProblemFilter']) -> bool:
+        is_no_filter = not filter or  filter.is_no_filter()
+        if is_no_filter:
+            return True
         else:
-            raise ValueError(f'Invalid filter string: {filter}')
+            if not filter:
+                return True
+            is_chosen_by_title = not filter.title or self.title == filter.title
+            is_chosen_by_premuim = not filter.is_premium or self.is_premium == filter.is_premium
+            is_chosen_by_status = not filter.statusSet or self.status in filter.statusSet
+
+            return is_chosen_by_title and is_chosen_by_premuim and is_chosen_by_status
+
 
 class ProblemEncoder(JSONEncoder):
-        def default(self, o: Problem):
-            return o.__dict__
+    def default(self, o: Problem):
+        return o.__dict__
+
 
 class ProblemFilter:
-    def __init__(self, title: str, pattern: Pattern) -> None:
-        self.title: str = title
-        self.pattern: Pattern = pattern
-        self.difficulty: str = ""
-        self.is_premium: str = ""
-        self.companies: str = ""
-        self.status: str = ""
+    def __init__(self,
+                 title: Optional[str] = None,
+                 pattern: Optional[Pattern] = None,
+                 statusSet: Optional[list[Status]] = None,
+                 difficulty: Optional[list[str]] = None,
+                 companies: Optional[list[str]] = None,
+                 is_premium: Optional[bool] = None) -> None:
+        self.title: Optional[str] = title
+        self.pattern: Optional[Pattern] = pattern
+        self.difficulty: Optional[list[str]] = difficulty
+        self.is_premium: Optional[bool] = is_premium
+        self.companies: Optional[list[str]] = companies
+        self.statusSet: Optional[list[Status]] = statusSet
+
+    def is_no_filter(self) -> bool:
+        return self.title is None and self.pattern is None and self.difficulty is None and self.is_premium is None and self.companies is None and self.statusSet is None
 
 
 class ProblemSet:
@@ -76,6 +109,14 @@ class ProblemSet:
 
     def get_sorted_problems(self) -> list[Problem]:
         return sorted(self.problems.values(), key=lambda p: p.id)
+
+    def get_filtered_problems(self, problemFilter: Optional[ProblemFilter]) -> Optional[list[Problem]]:
+        if problemFilter is None:
+            return self.get_sorted_problems()
+        else:
+            problems = [p for p in self.problems.values(
+            ) if p.is_choosen(problemFilter)]
+            return sorted(problems, key=lambda p: p.id)
 
     def get_statistic(self) -> 'Statistics':
         solved = {Difficulty.EASY: 0, Difficulty.MEDIUM: 0, Difficulty.HARD: 0}
@@ -92,6 +133,7 @@ class ProblemSet:
 
     # def get_filtered_problems(self, )
 
+
 class Statistics:
     def __init__(self, solved: dict[int, int], total: int) -> None:
         self.solved_easy: int = solved[Difficulty.EASY]
@@ -99,7 +141,9 @@ class Statistics:
         self.solved_hard: int = solved[Difficulty.HARD]
         self.total_solved: int = sum(solved.values())
         self.total: int = total
-        self.progress_perct: float = round(self.total_solved / self.total * 100, 1)
+        self.progress_perct: float = round(
+            self.total_solved / self.total * 100, 1)
+
 
 class ProblemUpdateRequest:
     def __init__(self, problem_id: int, status: int) -> None:
